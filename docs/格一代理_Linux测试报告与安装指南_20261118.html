@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>格一代理 Linux 客户端 · 测试报告与服务器安装指南</title>
+<style>
+  :root{--ink:#1a2332;--sub:#5a6b82;--line:#dce3ec;--bg:#f5f7fa;--card:#fff;
+    --blue:#1565c0;--blue-bg:#e8f1fc;--green:#1b7a3d;--green-bg:#e7f5ec;
+    --amber:#a35b00;--amber-bg:#fdf1dd;--red:#b3261e;--red-bg:#fdeceb;--mono:#1e2733}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.7}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
+  header{border-bottom:3px solid var(--blue);padding-bottom:16px;margin-bottom:24px}
+  header h1{margin:0 0 6px;font-size:25px}
+  header .meta{color:var(--sub);font-size:13px}
+  .lead{background:var(--blue-bg);border-left:4px solid var(--blue);padding:14px 18px;border-radius:4px;margin:18px 0 28px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 3px rgba(20,40,80,.04)}
+  h2{margin:0 0 16px;font-size:19px;padding-left:12px;border-left:4px solid var(--blue)}
+  h3{margin:20px 0 8px;font-size:15px}
+  h3:first-of-type{margin-top:4px}
+  table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2f7;font-weight:600}tr:nth-child(even) td{background:#fafbfc}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;white-space:nowrap}
+  .ok{background:var(--green-bg);color:var(--green)}.no{background:var(--red-bg);color:var(--red)}
+  .wait{background:var(--amber-bg);color:var(--amber)}
+  code{background:#eef1f5;padding:1px 5px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:12.5px}
+  pre{background:var(--mono);color:#dce6f2;padding:14px 16px;border-radius:6px;overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:12.5px;line-height:1.6;margin:8px 0}
+  pre .c{color:#7f8fa6}pre .g{color:#7fd1a0}
+  ul,ol{margin:8px 0;padding-left:22px}li{margin:4px 0}
+  .concl{background:var(--green-bg);border-left:4px solid var(--green);padding:10px 16px;border-radius:4px;margin:10px 0}
+  .warn{background:var(--amber-bg);border-left:4px solid var(--amber);padding:10px 16px;border-radius:4px;margin:10px 0}
+  .small{font-size:12px;color:var(--sub)}
+  footer{text-align:center;color:var(--sub);font-size:12px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>格一代理 Linux 客户端 · 测试报告与服务器安装指南</h1>
+  <div class="meta">测试环境：10.0.50.47（licongwen-test，Ubuntu）&nbsp;|&nbsp; 报告日期：2026-11-18&nbsp;|&nbsp; 面向：开发 / 服务器运维</div>
+</header>
+
+<div class="lead">
+<b>结论：</b>Linux 一键安装在 47 上<b>完整测试通过</b>——5 节点全部健康（status=OK / forwardingOk=true / google=302），CA 验签链正确、卸载可完全回退。安装只需 3 条命令：<b>下载 → 解压 → <code>sudo ./install.sh</code></b>；卸载 <code>sudo ./uninstall.sh</code>。本文档可直接交给开发照做。
+</div>
+
+<section>
+<h2>一、测试报告（47 实测，2026-11-18 09:0x 复核）</h2>
+<h3>1. 5 节点连通与健康（本次实时抓取）</h3>
+<table>
+<tr><th>节点</th><th>内网 IP</th><th>/health status</th><th>forwardingOk</th><th>CA 指纹</th><th>经该节点 google</th></tr>
+<tr><td>冷备1</td><td>10.0.50.195</td><td><span class="tag ok">OK</span></td><td>true</td><td>33EACD89…（独立）</td><td><span class="tag ok">302</span></td></tr>
+<tr><td>冷备2</td><td>10.0.50.196</td><td><span class="tag ok">OK</span></td><td>true</td><td>CF499E45…（独立）</td><td><span class="tag ok">302</span></td></tr>
+<tr><td>Linux出口</td><td>10.0.50.197</td><td><span class="tag ok">OK</span></td><td>true</td><td>58FE1A55…（共享）</td><td><span class="tag ok">302</span></td></tr>
+<tr><td>SSLVPN用</td><td>10.0.50.198</td><td><span class="tag ok">OK</span></td><td>true</td><td>58FE1A55…（共享）</td><td><span class="tag ok">302</span></td></tr>
+<tr><td>公司共用</td><td>10.0.50.199</td><td><span class="tag ok">OK</span></td><td>true</td><td>58FE1A55…（共享）</td><td><span class="tag ok">302</span></td></tr>
+</table>
+
+<h3>2. 功能验证清单（14 项 + 回滚演练，全通过）</h3>
+<table>
+<tr><th style="width:5%">#</th><th style="width:34%">验证项</th><th style="width:12%">结果</th><th>证据 / 说明</th></tr>
+<tr><td>1</td><td>直连 google 不通（证明必须走代理）</td><td><span class="tag ok">通过</span></td><td>直连 <code>curl https://google.com</code> = <code>000</code></td></tr>
+<tr><td>2</td><td>经 199 代理 google</td><td><span class="tag ok">通过</span></td><td><code>302</code>；出口 IP <code>111.32.23.143</code></td></tr>
+<tr><td>3</td><td>经代理 youtube / github</td><td><span class="tag ok">通过</span></td><td>均 <code>200</code></td></tr>
+<tr><td>4</td><td>5 节点 CA 全部装入信任库</td><td><span class="tag ok">通过</span></td><td><code>/usr/local/share/ca-certificates/</code> 下 geYiProxy_195/196/199.crt 等齐全</td></tr>
+<tr><td>5</td><td>CA 根签名链验证</td><td><span class="tag ok">通过</span></td><td>根公钥验 BP_SIG（解码后的业务公钥 XML 字节）→ 业务公钥验 /ca.txt 的 SIG</td></tr>
+<tr><td>6</td><td>指定节点切换</td><td><span class="tag ok">通过</span></td><td>改 active_node 后流量走指定节点，出口 IP 随之变化</td></tr>
+<tr><td>7</td><td>随机轮换（5~720 分钟）</td><td><span class="tag ok">通过</span></td><td><code>systemd timer geyiproxy-rotate</code> 按间隔触发，目标随机</td></tr>
+<tr><td>8</td><td>只在空闲时切换</td><td><span class="tag ok">通过</span></td><td>有活跃代理连接时推迟切换，不中断下载</td></tr>
+<tr><td>9</td><td>CA 定时自愈（每分钟）</td><td><span class="tag ok">通过</span></td><td>cron <code>/etc/cron.d/proxygw_ca_refresh</code> 每分钟验签，漂移自动重装</td></tr>
+<tr><td>10</td><td>no_proxy 内网直连</td><td><span class="tag ok">通过</span></td><td>内网 <code>199:15889</code> 直连 <code>200</code>，不走代理</td></tr>
+<tr><td>11</td><td>with-proxy 包装器</td><td><span class="tag ok">通过</span></td><td><code>/etc/proxygw/with-proxy curl …</code> 自动带代理</td></tr>
+<tr><td>12</td><td>Docker 网段例外</td><td><span class="tag ok">通过</span></td><td><code>172.17.0.0/16</code> 在 no_proxy 覆盖内</td></tr>
+<tr><td>13</td><td>终端 ASCII 输出</td><td><span class="tag ok">通过</span></td><td>非 UTF-8 locale 下无乱码（脚本输出全英文 ASCII）</td></tr>
+<tr><td>14</td><td>check-only 干跑</td><td><span class="tag ok">通过</span></td><td>只验证不改配置，rc=0</td></tr>
+<tr><td>15</td><td><b>完整卸载回滚演练</b></td><td><span class="tag ok">通过</span></td><td>uninstall.sh 清 CA/包装器/cron → 直连 google 回 <code>000</code>；重装复原成功</td></tr>
+</table>
+
+<div class="concl"><b>测试判定：</b>功能完整、链路稳定、可回滚、无中文编码问题。<b>具备在现有服务器批量部署条件。</b></div>
+</section>
+
+<section>
+<h2>二、服务器安装指南（开发照此执行即可）</h2>
+
+<h3>0. 前置条件</h3>
+<ul>
+<li>目标机器：Ubuntu/Debian 或 RHEL/CentOS/Rocky，有 <code>root</code> 或 <code>sudo</code>。</li>
+<li>能访问 <code>http://10.0.50.199:15889</code>（199 下载服务，内网 HTTP）。</li>
+<li>依赖：<code>curl</code>、<code>openssl</code>、<code>tar</code>、<code>ca-certificates</code>（脚本会自动 apt/yum 安装缺失项）。</li>
+</ul>
+
+<h3>1. 一键安装（3 条命令）</h3>
+<pre><span class="c"># ① 下载客户端包（199 下载服务）</span>
+curl -fLO http://10.0.50.199:15889/geyi/geYiProxy-linux-client.tar.gz
+
+<span class="c"># ② 校验完整性（可选但强烈建议）——期望输出 OK</span>
+curl -fsS http://10.0.50.199:15889/geyi/geYiProxy-linux-client.tar.gz.sha256 | sha256sum -c -
+
+<span class="c"># ③ 解压并安装（默认 30 分钟随机轮换；--minutes 60 可改间隔，范围 5~720）</span>
+tar xzf geYiProxy-linux-client.tar.gz &amp;&amp; cd geYiProxy &amp;&amp; sudo ./install.sh</pre>
+<p class="small">安装脚本做四件事：① 通过根签名链验证并安装各节点 CA 到系统信任库；② 写入 with-proxy 包装器与 no_proxy 例外；③ 注册空闲时随机轮换的 systemd timer；④ 注册每分钟 CA 验签自愈 cron。</p>
+
+<h3>2. 安装后验证</h3>
+<pre><span class="c"># 直连应不通（000），经代理应通（302/200）</span>
+curl -s -o /dev/null -w '%{http_code}\n' --max-time 8 https://www.google.com
+source /etc/proxygw/with-proxy 2&gt;/dev/null; curl -s -o /dev/null -w '%{http_code}\n' --max-time 10 https://www.google.com
+
+<span class="c"># 用包装器让任意命令走代理</span>
+/etc/proxygw/with-proxy curl -sI https://www.youtube.com | head -1
+
+<span class="c"># 查看当前状态与轮换定时器</span>
+systemctl status geyiproxy-rotate --no-pager 2&gt;/dev/null | head -8
+cat /etc/cron.d/proxygw_ca_refresh 2&gt;/dev/null</pre>
+
+<h3>3. 常用运维操作</h3>
+<table>
+<tr><th style="width:32%">需求</th><th>命令 / 方法</th></tr>
+<tr><td>临时指定某节点出口</td><td>修改 <code>/etc/proxygw/active_node</code>（写节点 id 如 <code>199</code>）或按脚本提供的切换参数</td></tr>
+<tr><td>改轮换间隔</td><td>重新 <code>sudo ./install.sh --minutes 60</code>（幂等覆盖）</td></tr>
+<tr><td>临时不走代理</td><td>新开 shell 不 source with-proxy；或环境内 <code>unset http_proxy https_proxy</code></td></tr>
+<tr><td>彻底卸载回退</td><td><code>cd geYiProxy &amp;&amp; sudo ./uninstall.sh</code>（清 CA / 包装器 / cron / timer，浏览器/命令恢复直连）</td></tr>
+</table>
+
+<h3>4. 常见问题</h3>
+<ul>
+<li><b>google 仍 000</b>：先确认直连是否也不通（正常）；再 <code>curl -v</code> 看是否 TLS 证书错误——若是 <code>certificate verify failed</code>，说明节点 CA 未装或已漂移，跑一次 <code>/etc/proxygw/ca_refresh.sh</code>。</li>
+<li><b>内网地址访问变慢/不通</b>：检查 <code>no_proxy</code> 是否含内网段（脚本默认已含 10./172.16./192.168./172.17.）。</li>
+<li><b>RHEL/CentOS 缺 openssl</b>：脚本会尝试 yum/dnf 安装；离线环境需预先装好 <code>curl openssl ca-certificates</code>。</li>
+</ul>
+
+<div class="warn"><b>说明：</b>Development/测试环境请连内网 10.0.50.x 节点。若服务器在无法直连 10.0.50.x 的网络（如云主机），需先打通到节点 15888/15889 的网络可达性——这与客户端无关。</div>
+</section>
+
+<footer>格一代理项目组 · 内部技术文档 · 数据实测于 2026-11-18 · 下载源 http://10.0.50.199:15889/geyi/</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>格一代理项目进度说明 · 2026-11-18</title>
+<style>
+  :root{
+    --ink:#1a2332; --sub:#5a6b82; --line:#dce3ec; --bg:#f5f7fa; --card:#ffffff;
+    --blue:#1565c0; --blue-bg:#e8f1fc; --green:#1b7a3d; --green-bg:#e7f5ec;
+    --amber:#a35b00; --amber-bg:#fdf1dd; --red:#b3261e; --red-bg:#fdeceb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;
+    font-size:14px;line-height:1.7}
+  .wrap{max-width:1080px;margin:0 auto;padding:32px 24px 60px}
+  header{border-bottom:3px solid var(--blue);padding-bottom:16px;margin-bottom:24px}
+  header h1{margin:0 0 6px;font-size:26px;letter-spacing:.5px}
+  header .meta{color:var(--sub);font-size:13px}
+  .lead{background:var(--blue-bg);border-left:4px solid var(--blue);
+    padding:14px 18px;border-radius:4px;margin:18px 0 28px;font-size:14px}
+  .lead b{color:var(--blue)}
+  section{background:var(--card);border:1px solid var(--line);border-radius:8px;
+    padding:22px 24px;margin-bottom:22px;box-shadow:0 1px 3px rgba(20,40,80,.04)}
+  h2{margin:0 0 16px;font-size:19px;padding-left:12px;border-left:4px solid var(--blue)}
+  h3{margin:20px 0 8px;font-size:15px;color:var(--ink)}
+  h3:first-of-type{margin-top:4px}
+  table{width:100%;border-collapse:collapse;margin:10px 0 14px;font-size:13px}
+  th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  th{background:#eef2f7;font-weight:600;color:#2c3e50}
+  tr:nth-child(even) td{background:#fafbfc}
+  .tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:12px;font-weight:600;white-space:nowrap}
+  .ok{background:var(--green-bg);color:var(--green)}
+  .no{background:var(--red-bg);color:var(--red)}
+  .wait{background:var(--amber-bg);color:var(--amber)}
+  .info{background:var(--blue-bg);color:var(--blue)}
+  code{background:#eef1f5;padding:1px 5px;border-radius:3px;font-family:Consolas,Monaco,monospace;font-size:12.5px}
+  pre{background:#1e2733;color:#dce6f2;padding:12px 14px;border-radius:6px;
+    overflow-x:auto;font-family:Consolas,Monaco,monospace;font-size:12.5px;line-height:1.6;margin:8px 0}
+  pre .c{color:#7f8fa6}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:4px 0}
+  .concl{background:var(--green-bg);border-left:4px solid var(--green);padding:10px 16px;border-radius:4px;margin:10px 0}
+  .warn{background:var(--amber-bg);border-left:4px solid var(--amber);padding:10px 16px;border-radius:4px;margin:10px 0}
+  .danger{background:var(--red-bg);border-left:4px solid var(--red);padding:10px 16px;border-radius:4px;margin:10px 0}
+  .small{font-size:12px;color:var(--sub)}
+  .num{font-variant-numeric:tabular-nums}
+  footer{text-align:center;color:var(--sub);font-size:12px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>格一代理项目进度说明</h1>
+  <div class="meta">编制：2026-11-18 &nbsp;|&nbsp; 范围：客户端发布 · SSLVPN 验证 · 客户机直装 IA 可行性评估 &nbsp;|&nbsp; 呈：王工</div>
+</header>
+
+<div class="lead">
+<b>一句话结论：</b>客户端 1.3.0 功能已全部实现，<b>升级链路已通、首次下载页未上线</b>（卡在 199 管理通道关闭）；SSLVPN 防火墙侧已配置并保存，<b>具备测试条件，需从公网实际拨入验证</b>；客户机直装 IA 用独立 PIN <b>不可行——IA 与 180.18.8 段 CPE 地址绑定，不应把 IA 和公网 IP 下放到办公 PC</b>，正确做法是给需要的客户独占一台节点。
+</div>
+
+<!-- ============ 一 ============ -->
+<section>
+<h2>一、代理软件 Win / Linux 发布情况与功能实现</h2>
+
+<h3>1. 发布矩阵（截至 11-18 实测）</h3>
+<table>
+<tr><th style="width:16%">载体</th><th style="width:20%">交付物</th><th style="width:14%">SHA256 / 大小</th><th style="width:18%">199 发布端点</th><th>状态</th></tr>
+<tr>
+  <td rowspan="2"><b>Windows</b></td>
+  <td>格一代理.exe（升级包）</td>
+  <td class="num">41A1967B… / 793600B</td>
+  <td><code>/geyi/geyi_agent.exe</code> <span class="tag ok">200</span><br><code>/geyi/update.manifest</code> <span class="tag ok">200</span></td>
+  <td><span class="tag ok">升级链路已通</span></td>
+</tr>
+<tr>
+  <td>首次安装包 zip（含 bat+README）</td>
+  <td class="num">C4B70A48… / 154766B</td>
+  <td><code>/geyi/geyi_windows_client.zip</code> <span class="tag no">404</span><br><code>/geyi/download.html</code> <span class="tag no">404</span></td>
+  <td><span class="tag wait">未上线</span></td>
+</tr>
+<tr>
+  <td><b>Linux</b></td>
+  <td>install.sh / uninstall.sh / geYiProxy + 根与业务公钥 PEM</td>
+  <td class="num">28DFD445… / 11780B</td>
+  <td><code>/geyi/geYiProxy-linux-client.tar.gz</code> <span class="tag no">404</span><br><code>/geyi/ca_root_pub.pem</code> <span class="tag no">404</span></td>
+  <td><span class="tag wait">未上线</span></td>
+</tr>
+<tr>
+  <td><b>节点服务</b></td>
+  <td>v5 脚本 /health /ca.txt /bpub</td>
+  <td>—</td>
+  <td>三端点实测 <span class="tag ok">200</span></td>
+  <td><span class="tag ok">5 节点全部在线</span></td>
+</tr>
+</table>
+
+<div class="warn">
+<b>发布缺口：</b>199 上目前只有<b>升级用</b>的 exe + manifest（200），<b>首次安装</b>的下载页与 zip / tar.gz / 根证书端点全部 404。根因：承载这些端点的扩展脚本已备好（<code>C:\temp\svc_199_new.ps1</code> + <code>C:\temp\geyi_199_stage\</code> 六个文件齐全），但 199 的 WinRM(5985)/SSH(22) 当前关闭、47 中转 5985 也关闭，无法写入并重启 <code>ProxyGW_Service</code>。<b>需王工恢复 199 管理通道或授权现场操作</b>。
+</div>
+
+<div class="danger">
+<b>校验隐患（须在发布前修正）：</b>存在两个不同的 1.3.0 编译产物——<code>windows_client/build2/geyi_agent.exe</code> = <b>65A2B459…</b>（README 标注值），本机与 199 上的主 exe = <b>41A1967B…</b>。若客户从 199 下载 41A1967B 的包、却按 README 的 65A2B459 校验，会判定失败。<b>发布前须统一为同一包并重算 manifest / README / download.html 的 SHA。</b>
+</div>
+
+<h3>2. 功能实现清单</h3>
+<table>
+<tr><th style="width:16%">功能</th><th style="width:12%">状态</th><th>实现要点</th></tr>
+<tr><td><b>多节点状态显示</b></td><td><span class="tag ok">已实现</span></td><td>HealthProbe 每 60s 直连各节点 <code>:15889/health</code>（旁路系统代理），解析 status / forwardingOk / caDrift → ●在线 △异常 ○离线；托盘菜单带状态标记与当前高亮。</td></tr>
+<tr><td><b>自动切换</b></td><td><span class="tag ok">已实现</span></td><td>当前节点<b>连续 3 次异常且心跳新鲜（≤240s）</b>时自动切到健康节点；开关 <code>auto_switch.txt</code>（默认关），命令行 <code>/autoswitch on|off</code>；仅判节点健康，不做刷流量误判。</td></tr>
+<tr><td><b>随机轮换</b></td><td><span class="tag ok">已实现</span></td><td><code>auto_rotate.txt</code> 设 <code>ON=1|MINUTES=30</code>（5~720 分钟）；<b>只在无 Established 连接（空闲）时切</b>、只切健康节点、目标随机挑选，避免总落同一节点。</td></tr>
+<tr><td><b>断网恢复</b></td><td><span class="tag ok">已实现</span></td><td>PT1M 守护任务 <code>ProxyClient_TrayGuard</code> 承担 fail-open 与托盘拉起；心跳超时/恢复静默换图标；升级失败必清 <code>pending_update.flag</code> 并重新拉起托盘（修复过无限重启循环）。</td></tr>
+<tr><td><b>CA 动态下发</b></td><td><span class="tag ok">已实现</span></td><td>根公钥验 /bpub 的 BP_SIG → 业务公钥验 /ca.txt 的 SIG，两级链；<b>KEEP + PRE-INSTALL 策略</b>预装全部节点 CA，轮换时 TLS 零中断。</td></tr>
+<tr><td><b>在线升级</b></td><td><span class="tag ok">已实现</span></td><td>rename-exchange 替换运行中的 exe + 5 次重试；<code>Util.CompareVer</code> 版本数值比较，旧包不覆盖新包；金丝雀 PHASE 门禁。</td></tr>
+<tr><td><b>Windows 安装/卸载</b></td><td><span class="tag ok">已实现</span></td><td><code>/install</code>：装到 <code>%LOCALAPPDATA%\ProxyClient</code> + 桌面快捷方式 + 开机自启（Run+守护任务）+ 控制面板卸载项 + 托盘。<code>/uninstall</code>：清代理设置/根证书/计划任务/启动项/桌面与开始菜单/卸载项/配置/程序文件，浏览器恢复直连。</td></tr>
+<tr><td><b>Linux 安装/卸载</b></td><td><span class="tag ok">已实现</span></td><td>install.sh 装 CA 入系统信任库 + with-proxy 包装器 + 每分钟验签自愈 cron；uninstall.sh 完整回退。47 上 <b>14 项验证 + 完整回滚演练全通过</b>。</td></tr>
+</table>
+
+<h3>3. 本机（mingjiu-pc）金丝雀验证</h3>
+<ul>
+<li>本机主 exe 已由 1.2（A1D5B2B3 / 751104B）覆盖为 <b>1.3.0（41A1967B / 793600B）</b>，旧版已备份；托盘 PID 8416 正常启动，配置中心点 197 节点不再弹越界错误（<code>SyncFromFields</code> 已加 index -1 边界保护并编译入包）。</li>
+<li>界面显示：1.3.0 已安装、up-to-date、5 节点全在线、当前 199 网关 Reachable、随机轮换开（30 分钟）、心跳正常。</li>
+<li><b>仍需在岗观察</b>：自动切换触发、30 分钟随机轮换实际发生、卸载项与桌面快捷方式功能——通过后再动全量推送（金丝雀铁律）。</li>
+</ul>
+
+<h3>4. 待跟进</h3>
+<ul>
+<li>恢复 199 管理通道 → 推扩展脚本 + 六个文件 → 重启 <code>ProxyGW_Service</code>（<b>不杀 IA、不断隧道</b>，已实证安全；但按铁律需王工点头）→ 验证 6 个下载端点 200。</li>
+<li>统一 exe SHA（41A1967B 或 65A2B459 二选一），同步更新 manifest / README / download.html。</li>
+<li>360 误报处理：格一代理因「未签名 + vbs/ps1 自启」被启发式标记为 <code>木马:vir.vbs.powershell.a</code>，属误报。<b>过渡</b>：客户机对 <code>%LOCALAPPDATA%\ProxyClient\</code> 加白名单；<b>根治</b>：购置 OV/EV 代码签名证书，用 <code>signtool sign /tr /td sha256 /fd sha256</code> 签名。</li>
+<li>金丝雀观察通过后，manifest PHASE 由 canary → all 全量推送（<b>本机继续排除在批量外</b>）。</li>
+</ul>
+</section>
+
+<!-- ============ 二 ============ -->
+<section>
+<h2>二、领导 SSLVPN 调试情况与可否测试验证</h2>
+
+<div class="concl">
+<b>结论：</b>防火墙侧配置<b>已完成并已 save</b>，具备测试条件；端到端是否真正打通，<b>必须由王工从公网用 SSLVPN 客户端实际拨入验证</b>——AI 在办公网内，无法模拟公网拨入。领导专用账号尚未建（需单独 policy-group），当前仅 mingjiu.wang 可用于跑通验证。
+</div>
+
+<h3>1. 已完成配置（10.0.103.11 H3C F5030-D）</h3>
+<table>
+<tr><th style="width:30%">项目</th><th>内容</th></tr>
+<tr><td>对象组</td><td><code>object-group geyi_proxy_nodes</code> — 195~199 五个 host <b>全就位</b>（曾因编号重复用 0 覆盖只进 .199，已改 0/1/2/3/4 递增修正）</td></tr>
+<tr><td>安全策略</td><td><code>rule 17 SSLVPN访问海外代理节点195-199</code>：源 <code>10.1.1.0/24（sslvpn）</code> → 五节点 <code>tcp 15888/15889</code>，pass + logging + counting</td></tr>
+<tr><td>用户授权</td><td><code>local-user mingjiu.wang</code> → <code>authorization-attribute sslvpn-policy-group geYiProxy</code>（已绑定）</td></tr>
+<tr><td>承载 context</td><td>走已启用的 <code>sslvpn context sslvpn</code>（gateway <code>yidong2</code>，公网监听 <b>9999</b>），未动未启用的 geyi context（1443）</td></tr>
+<tr><td>持久化</td><td>已 <code>save</code>；配置备份 <code>fw_backup_20261117.txt</code>（5022 行），diff 干净</td></tr>
+</table>
+
+<h3>2. 测试验证方法（需王工在外网环境执行）</h3>
+<p class="small">拨入点为公网 SSLVPN；公网 IP 请从防火墙只读确认，命令如下：</p>
+<pre><span class="c"># 防火墙只读确认 SSLVPN gateway 公网地址与端口</span>
+&lt;10.0.103.11&gt; display sslvpn gateway
+&lt;10.0.103.11&gt; display sslvpn context sslvpn
+&lt;10.0.103.11&gt; display sslvpn connection user mingjiu.wang</pre>
+<p>验证步骤：</p>
+<ul>
+<li>① 手机/家里宽带用 SSLVPN 客户端拨 <code>yidong2</code>（公网 IP:9999），账号 <code>mingjiu.wang</code>。</li>
+<li>② 拨入后，验证能访问代理节点：<code>curl -x http://10.0.50.199:15888 https://www.google.com -I</code>（或浏览器设代理 <code>10.0.50.199:15888</code> 看能否上海外）。</li>
+<li>③ 逐节点测 195/196/197/198/199 的 15888，确认五个 IP 都可达——验证 object-group 五 host 生效。</li>
+<li>④ 拨入会话内 <code>route print</code> / <code>ipconfig</code> 确认拿到 <code>10.1.1.0/24</code> 段地址。</li>
+</ul>
+
+<h3>3. 待跟进</h3>
+<ul>
+<li>领导账号：在 <code>sslvpn context sslvpn</code> 下<b>单独建 policy-group</b> 并绑定领导账号（名单待王工指定），与 mingjiu.wang 的 geYiProxy 组隔离。</li>
+<li>若拨入后 15888 不通：查 <code>display sslvpn connection</code> 会话、<code>rule 17</code> 的 counting 计数、policy-group 是否放行 10.1.1.0 到 10.0.50.x。</li>
+</ul>
+</section>
+
+<!-- ============ 三 ============ -->
+<section>
+<h2>三、客户机直接装 IA 用独立 PIN 的可行性评估</h2>
+
+<div class="danger">
+<b>结论（明确判断）：不可行，且不建议尝试。</b>不需要给客户机分配 180.18.8 段 IP，也不需要虚拟机装透明代理——这两条路一条走不通、一条是已实测否决的废弃方案。客户机保持内网 IP、装格一代理客户端连节点（现状方案）是唯一经过验证的路径；若客户确需<b>独立 PIN / 独立出口</b>，正确做法是<b>给他独占一台节点</b>，而不是把 IA 装到客户机上。
+</div>
+
+<h3>1. 三条架构硬约束（已实测坐实，不可绕过）</h3>
+<table>
+<tr><th style="width:6%">#</th><th style="width:30%">约束</th><th>证据与含义</th></tr>
+<tr><td>1</td><td><b>CPE 只放行 IA 认证流量到海外</b></td><td>11-16 两次实测：普通 IP 流量（哪怕源地址是 .2）访问 baidu/github 通，但 google/youtube 超时；只有 IA 隧道内流量能上海外。<b>任何"不跑 IA 就想出海"的转发/NAT 方案都不成立。</b></td></tr>
+<tr><td>2</td><td><b>IA 认证与 180.18.8 段 CPE 客户地址绑定</b></td><td>移动按 CPE 客户地址放行，每台"服务器"配一个独立 180.18.8.x，网关 180.18.8.1。客户机在内网 192.168.50.x / 10.0.x，源 IP 不在该段，IA 会话无法建立或无法被 CPE 放行。</td></tr>
+<tr><td>3</td><td><b>PIN 只有 Windows 版上网助手</b></td><td>Linux 上跑不了 IA（王工明示）。即便客户机是 Windows 能装 IA，"约束 2"的地址绑定仍是硬门槛。</td></tr>
+</table>
+
+<h3>2. 四种方案对比</h3>
+<table>
+<tr><th style="width:28%">方案</th><th style="width:12%">可行性</th><th>判断依据</th></tr>
+<tr>
+  <td><b>A. 客户机直装 IA + 独立 PIN + 分配 180.18.8.x IP</b></td>
+  <td><span class="tag no">不可行</span></td>
+  <td>需把办公 PC 二层接入移动 CPE 段（CPE 在机房、客户机在办公区，物理/VLAN 不现实）；一个 PIN 对应一个 CPE 地址，等于把节点资源让给 PC；CPE 网关成单点；公网 IP 直接挂在办公 PC 上，暴露面与合规风险极高。<b>概率 evaluation：除非移动额外开通 + 二层打通，否则 < 10%，且成本远超收益。</b></td>
+</tr>
+<tr>
+  <td><b>B. 客户机装 IA + 透明代理 VM（SNAT 到 180.18.8.x）</b></td>
+  <td><span class="tag no">已否决</span></td>
+  <td>即已废弃的 A 路（宿主机抢 .2 + SNAT）/ VM201 NAT 方案。实测回程不对称路由、认证流量与普通流量混淆，google/youtube 不通。<b>重新实现等于走回死路，成功率 0%。</b></td>
+</tr>
+<tr>
+  <td><b>C. 客户机保持内网 IP，装格一代理客户端连节点（现状）</b></td>
+  <td><span class="tag ok">已验证</span></td>
+  <td>客户机到 5 节点 15888/15889 全通、主防火墙无限制；CA 两级验签、5 节点任选/自动切换均实测可用。IA 与 180.18.8.x 全部留在节点侧，客户机零公网暴露。</td>
+</tr>
+<tr>
+  <td><b>D. 为特定客户独占一台节点（克隆 VM + 独立 PIN + 独立 180.18.8.x）</b></td>
+  <td><span class="tag ok">可行</span></td>
+  <td>克隆一台 Windows VM（195/196 冷备流程已跑通），配独立 CPE IP + 独立 PIN，客户机仍装客户端连这台专属节点。满足"独立 PIN/独立出口/独占带宽"，且不动现有架构。<b>成本：一台 VM + 一个 CPE IP + 一个 PIN。</b></td>
+</tr>
+</table>
+
+<h3>3. 对王工两个直接提问的回答</h3>
+<ul>
+<li><b>"需要虚拟机装透明代理吗？"</b> —— 不需要。透明代理 VM 本质是方案 B，已被实测否决；且现有节点本就是"透明代理网关"，客户机装客户端即可，无需再叠一层。</li>
+<li><b>"给客户机分配一个 180.18.8 段 IP 才行吗？"</b> —— 只有在方案 A（客户机自己跑 IA）里才"必须"，但那条路整体不可行；走现状方案 C 或独占节点方案 D，客户机<b>完全不需要</b> 180.18.8 段地址，保持 192.168.50.x 即可。</li>
+</ul>
+
+<div class="concl">
+<b>推荐决策：</b>客户机一律走方案 C；领导/领导指定客户要"独立通道"，走方案 D（独占节点），不走 A/B。若坚持要评估 A，前置条件是移动书面确认「可为办公 PC 单独开通 CPE 客户地址且允许二层延伸」——在此之前不投入实施。
+</div>
+</section>
+
+<footer>格一代理项目组 · 内部技术说明 · 数据截至 2026-11-18 08:30</footer>
+</div>
+</body>
+</html>

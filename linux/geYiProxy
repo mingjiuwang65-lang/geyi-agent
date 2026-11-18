@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# geYiProxy - status / rotate / uninstall entry point
+set -uo pipefail
+APP_DIR="/opt/geYiProxy"
+STATE_DIR="${APP_DIR}/state"
+BIN_DIR="${APP_DIR}/bin"
+
+if [ ! -f "${BIN_DIR}/lib.sh" ]; then
+  echo "geYiProxy is not installed (missing ${BIN_DIR}/lib.sh)"
+  echo "install: sudo ${APP_DIR}/install.sh"
+  exit 1
+fi
+
+# shellcheck source=/dev/null
+. "${BIN_DIR}/lib.sh"
+
+case "${1:-status}" in
+  status)
+    echo "===== GeYiProxy status ====="
+    cur=$(current_node)
+    echo "current node : node ${cur}  ->  http://10.0.50.${cur}:${PROXY_PORT}"
+    last=$(cat "${STATE_DIR}/last_rotate_ts" 2>/dev/null || echo 0)
+    now=$(date +%s)
+    echo "last rotate  : $(( (now - last) / 60 )) minutes ago"
+    echo "rotate every : ${ROTATE_MINUTES} minutes (random, skipped while busy)"
+    echo ""
+    echo "--- node health ---"
+    for n in 195 196 197 198 199; do
+      if node_healthy "$n"; then
+        code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 --connect-timeout 6 \
+               --proxy "http://10.0.50.${n}:${PROXY_PORT}" https://www.google.com 2>/dev/null)
+        mark="*"; case "${code}" in 200|301|302|303|307|308) mark="+" ;; *) mark="?" ;; esac
+        echo "  ${mark} node ${n}  health=OK  google=${code}"
+      else
+        echo "  - node ${n}  health=FAIL"
+      fi
+    done
+    ;;
+  rotate)
+    want="${2:-}"
+    if [ -n "${want}" ]; then
+      # explicit target: must be a known node and healthy
+      case "${want}" in 195|196|197|198|199) ;; *) echo "unknown node ${want}"; exit 1;; esac
+      if ! node_healthy "${want}"; then echo "node ${want} is not healthy, refusing to switch"; exit 1; fi
+      target="${want}"
+      echo "switching to requested node ${target} (health OK)"
+    else
+      echo "forcing rotation to a random healthy node..."
+      target=$(pick_random_node "$(current_node)") || { echo "no healthy node available"; exit 1; }
+    fi
+    set_current_node "${target}"
+    date +%s > "${STATE_DIR}/last_rotate_ts"
+    write_proxy_env
+    echo "current node is now ${target}"
+    ;;
+  uninstall)
+    bash "${APP_DIR}/uninstall.sh"
+    ;;
+  *)
+    echo "usage: geYiProxy [status|rotate [node]|uninstall]"
+    exit 1
+    ;;
+esac

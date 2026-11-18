@@ -1,0 +1,24 @@
+# GeYiProxy update.manifest - publish this file on the update source.
+# Copy it next to the new 格一代理.exe, fill VER/BUILD/URL/SHA256/SIZE, then
+# set PHASE=canary FIRST. Only hosts listed in CANARY_HOSTS may auto-install.
+# After the canary host passes (version changed + tray alive + verify=PASS +
+# clean rollback), change PHASE=all to release to every client.
+# ------------------------------------------------------------------
+# VER               semantic version, must be greater than the installed one
+# BUILD             build stamp; a new BUILD with the same VER also triggers upgrade
+# URL               absolute URL/UNC/local path of the new exe
+#                   (relative paths are resolved against the manifest location)
+# SHA256            hex SHA256 of the new exe, mandatory (refuse on mismatch)
+# SIZE              byte length of the new exe, mandatory
+# PHASE             canary | all | hold
+# CANARY_HOSTS      comma separated NetBIOS names allowed at PHASE=canary
+# NOTE              shown in the tray balloon / config window
+# ------------------------------------------------------------------
+VER=1.1.0
+BUILD=20261114-1
+URL=格一代理.exe
+SHA256=
+SIZE=
+PHASE=canary
+CANARY_HOSTS=mingjiu-pc
+NOTE=格一代理 正式版

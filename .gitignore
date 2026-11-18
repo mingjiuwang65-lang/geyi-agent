@@ -1,0 +1,45 @@
+# ===== 敏感材料：私钥 / 凭据（绝对禁止入库）=====
+**/*priv*.xml
+**/*key*.xml
+**/*.pfx
+**/*.p12
+**/keys/
+**/pem/
+198_deploy/
+ca_keys/
+ca_root_priv.xml
+ca_sign_priv*.xml
+
+# ===== 二进制资产（本地注入，不入库）=====
+**/*.ico
+**/*.png
+**/*.cer
+**/*.crt
+*.exe
+*.zip
+*.tar.gz
+*.msi
+
+# ===== 运行时产物 / 日志 / 备份 =====
+*.log
+*.bak
+*.bak_*
+*.bak_*.exe
+*.bak_*.cs
+格一代理.cs.bak_*
+downloads/
+tray_quit.flag
+pending_update.flag
+node_health.txt
+app_version.txt
+active_server.txt
+rotate_state.txt
+update_state.txt
+update_last_check.txt
+
+# ===== 环境与编辑器 =====
+.env
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
